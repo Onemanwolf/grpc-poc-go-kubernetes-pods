@@ -18,21 +18,24 @@ func main() {
 
 	c := pb.NewGreeterClient(conn)
 
-	// Send 10 requests
-	for i := 1; i <= 10; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+	// Counter for request numbering
+	requestNum := 1
 
+	// Run indefinitely, sending a request every 10 seconds
+	for {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: "World"})
 		if err != nil {
-			log.Printf("Request %d failed: %v", i, err)
-			continue
+			log.Printf("Request %d failed: %v", requestNum, err)
+		} else {
+			log.Printf("Request %d - Greeting: %s", requestNum, r.GetMessage())
 		}
-		log.Printf("Request %d - Greeting: %s", i, r.GetMessage())
+		cancel()
 
-		// Delay between requests
-		time.Sleep(1 * time.Second)
+		// Increment request counter
+		requestNum++
+
+		// Wait 10 seconds before the next request
+		time.Sleep(10 * time.Second)
 	}
-
-	log.Println("Completed 10 requests, shutting down")
 }
